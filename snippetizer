@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -eu
+
+# Colors
+BLUE='\033[1;34m'
+BROWN='\033[0;33m'
+GREEN='\033[1;32m'
+NC='\033[0m'
+YELLOW='\033[1;33m'
+
+SNIPPET_LENGTH=30
+PART="middle"
+FADE_IN=2
+FADE_OUT=3
+
+FILE=${1:-}
+
+USAGE="
+${BROWN}Usage${NC}: $0 FILE [ARGUMENTS]
+Create snippets of audio files using ffmpeg and ffprobe.
+
+${BROWN}Arguments${NC}:
+  [start|middle|end]    What part of the file you want to snippet.
+                        Defaults to 'middle'.
+  [<any integer>]       Snippet length in seconds.
+  [-n/--nofade]         Don’t fade in and out.
+
+${BROWN}Usage example${NC}:
+  Create 30 second snippets of all flac and wav files in current directory:
+  ${BLUE}find . -maxdepth 1 \( -iname '*.wav' -o -iname '*.flac' \) -execdir snippetizer {} \;${NC}
+"
+
+if [ "$#" -eq 0 ]; then
+  echo -e "$USAGE"
+  exit 1
+fi
+
+# Handle args
+for arg in "$@"; do
+  if [ "$arg" = "start" ] || [ "$arg" = "middle" ] || [ "$arg" = "end" ]; then
+    PART="$arg"
+  elif [ "$arg" = "--nofade" ] || [ "$arg" = "-n" ]; then
+    FADE_IN=0
+    FADE_OUT=0
+  elif [ -n "${arg##*[!0-9]*}" ]; then
+    # This is a number. Let’s use it for $SNIPPET_LENGTH.
+    SNIPPET_LENGTH="$arg"
+  elif [ "$arg" = "help" ] || [ "$arg" = "--help" ] || [ "$arg" = "-h" ]; then
+    echo -e "$USAGE"
+    exit 0
+  else
+    FILE="$arg"
+  fi
+done
+
+# Get the duration of the file in seconds, and shave off any decimals
+duration=$(ffprobe -show_entries format=duration -loglevel quiet -print_format csv="print_section=0" "$FILE")
+approximate_duration=${duration%.*}
+
+# Figure out where to start snippet
+if [ "$PART" == "start" ]; then
+  starting_point=0
+elif [ "$PART" == "middle" ]; then
+  starting_point=$(((approximate_duration-SNIPPET_LENGTH) / 2))
+else
+  starting_point=$((approximate_duration-SNIPPET_LENGTH))
+fi
+
+# Only snippet files longer than $SNIPPET_LENGTH
+if [[ "$approximate_duration" -lt $SNIPPET_LENGTH ]]; then
+  echo "This song is already a snippet, exiting."
+  exit 1
+fi
+
+# We don’t want our snippets to go beyond the end of the song.
+if [[ $((starting_point+SNIPPET_LENGTH)) -ge $approximate_duration ]]; then
+  echo "The snippet must be shorter than the song."
+  if [ "$PART" == "middle" ]; then
+    echo "Try starting from the start of the song (add argument 'start')."
+  elif [ "$PART" == "end" ]; then
+    echo "Try starting from the middle of the song (add argument 'middle')."
+  fi
+  exit 1
+fi
+
+# We’re set, let’s summarize
+echo -e "Creating a ${GREEN}$SNIPPET_LENGTH${NC} second long snippet of ${YELLOW}$FILE${NC}"
+echo -e "The snippet will begin at the ${GREEN}$PART${NC} of the file."
+if [ "$FADE_IN" -eq 0 ]; then
+  echo "There will be no fading in or out."
+fi
+
+# Generate output filename.
+output_file="${FILE%.*}.mp3"
+
+ffmpeg \
+  -loglevel quiet \
+  -ss "$starting_point" \
+  -i "$FILE" \
+  -t "$SNIPPET_LENGTH" \
+  -af "afade=t=in:st=0:d=$FADE_IN, afade=t=out:st=$((SNIPPET_LENGTH-FADE_OUT)):d=$FADE_OUT" \
+  -b:a 192k \
+  "$output_file"
