@@ -2,7 +2,7 @@
 
 Snippetizer uses `ffmpeg` and `ffprobe` to create snippets from audio files.
 
-Snippets default to 30 seconds, and are faded in and out.
+Snippets default to a 30 second bit from the middle of the song, and are faded in and out.
 
 ## Usage
 
