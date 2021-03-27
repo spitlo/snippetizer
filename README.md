@@ -7,7 +7,7 @@ Snippets default to a 30 second bit from the middle of the song, and are faded i
 ## Installation
 
 - Copy the `snippetizer` file to  `~/bin`; or
-- Clone the repo and create a symlink in `~/bin`
+- Clone the repo and create a symlink to `snippetizer` in `~/bin`
 
 ## Usage
 
