@@ -8,10 +8,11 @@ GREEN='\033[1;32m'
 NC='\033[0m'
 YELLOW='\033[1;33m'
 
-SNIPPET_LENGTH=30
-PART="middle"
+# Defaults
 FADE_IN=2
 FADE_OUT=3
+PART="middle"
+SNIPPET_LENGTH=30
 
 FILE=${1:-}
 
@@ -23,6 +24,7 @@ ${BROWN}Arguments${NC}:
   [start|middle|end]    What part of the file you want to snippet.
                         Defaults to 'middle'.
   [<any integer>]       Snippet length in seconds.
+                        Defaults to '30'.
   [-n/--nofade]         Don’t fade in and out.
 
 ${BROWN}Usage example${NC}:

@@ -21,6 +21,7 @@ snippetizer audio_file.wav
 [start|middle|end]    What part of the file you want to snippet.
                       Defaults to 'middle'.
 [<any integer>]       Snippet length in seconds.
+                      Defaults to '30'.
 [-n/--nofade]         Don’t fade in and out.
 ```
 
