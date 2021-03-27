@@ -56,27 +56,33 @@ for arg in "$@"; do
 done
 
 # Get the duration of the file in seconds, and shave off any decimals
-duration=$(ffprobe -show_entries format=duration -loglevel quiet -print_format csv="print_section=0" "$FILE")
+duration=$(
+  ffprobe \
+    -show_entries format=duration \
+    -loglevel quiet \
+    -print_format csv="print_section=0" \
+    "$FILE"
+)
 approximate_duration=${duration%.*}
 
 # Figure out where to start snippet
-if [ "$PART" == "start" ]; then
+if [ "$PART" = "start" ]; then
   starting_point=0
-elif [ "$PART" == "middle" ]; then
+elif [ "$PART" = "middle" ]; then
   starting_point=$(((approximate_duration-SNIPPET_LENGTH) / 2))
 else
   starting_point=$((approximate_duration-SNIPPET_LENGTH))
 fi
 
 # Only snippet files longer than $SNIPPET_LENGTH
-if [[ "$approximate_duration" -lt $SNIPPET_LENGTH ]]; then
-  echo "This song is already a snippet, exiting."
+if [ "$approximate_duration" -lt "$SNIPPET_LENGTH" ]; then
+  echo "Snippet length must be shorter than the song, exiting."
   exit 1
 fi
 
 # We don’t want our snippets to go beyond the end of the song.
-if [[ $((starting_point+SNIPPET_LENGTH)) -ge $approximate_duration ]]; then
-  echo "The snippet must be shorter than the song."
+if [ $((starting_point+SNIPPET_LENGTH)) -ge "$approximate_duration" ]; then
+  echo "Snippet length must be shorter than the song."
   if [ "$PART" == "middle" ]; then
     echo "Try starting from the start of the song (add argument 'start')."
   elif [ "$PART" == "end" ]; then
