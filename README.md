@@ -32,3 +32,7 @@ Create 30 second snippets of all flac and wav files in current directory:
 ```bash
 find . -maxdepth 1 \( -iname '*.wav' -o -iname '*.flac' \) -execdir snippetizer {} \;
 ```
+
+## Todo
+
+- [ ] Add argument for using ogg instead of mp3 as output format
