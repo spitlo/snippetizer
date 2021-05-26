@@ -35,4 +35,4 @@ find . -maxdepth 1 \( -iname '*.wav' -o -iname '*.flac' \) -execdir snippetizer 
 
 ## Todo
 
-- [ ] Add argument for using ogg instead of mp3 as output format
+- [x] Add argument for using ogg instead of mp3 as output format

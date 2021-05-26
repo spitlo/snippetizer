@@ -13,6 +13,7 @@ FADE_IN=2
 FADE_OUT=3
 PART="middle"
 SNIPPET_LENGTH=30
+OUTPUT_FORMAT="mp3"
 
 FILE=${1:-}
 
@@ -25,6 +26,7 @@ ${BROWN}Arguments${NC}:
                         Defaults to 'middle'.
   [<any integer>]       Snippet length in seconds.
                         Defaults to '30'.
+  [-o/--ogg]            Use ogg as output format instead of mp3.
   [-n/--nofade]         Don’t fade in and out.
 
 ${BROWN}Usage example${NC}:
@@ -44,6 +46,8 @@ for arg in "$@"; do
   elif [ "$arg" = "--nofade" ] || [ "$arg" = "-n" ]; then
     FADE_IN=0
     FADE_OUT=0
+  elif [ "$arg" = "--ogg" ] || [ "$arg" = "-o" ]; then
+    OUTPUT_FORMAT="ogg"
   elif [ -n "${arg##*[!0-9]*}" ]; then
     # This is a number. Let’s use it for $SNIPPET_LENGTH.
     SNIPPET_LENGTH="$arg"
@@ -99,7 +103,7 @@ if [ "$FADE_IN" -eq 0 ]; then
 fi
 
 # Generate output filename.
-output_file="${FILE%.*}.mp3"
+output_file="${FILE%.*}.${OUTPUT_FORMAT}"
 
 ffmpeg \
   -loglevel quiet \
