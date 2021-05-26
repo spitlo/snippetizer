@@ -22,6 +22,7 @@ snippetizer audio_file.wav
                       Defaults to 'middle'.
 [<any integer>]       Snippet length in seconds.
                       Defaults to '30'.
+[-o/--ogg]            Use ogg as output format instead of mp3.
 [-n/--nofade]         Don’t fade in and out.
 ```
 
