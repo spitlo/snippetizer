@@ -105,6 +105,11 @@ fi
 # Generate output filename.
 output_file="${FILE%.*}.${OUTPUT_FORMAT}"
 
+# Don’t overwrite existing file
+if [ "$output_file" == "$FILE" ]; then
+  output_file="${FILE%.*}-snippet.${OUTPUT_FORMAT}"
+fi
+
 ffmpeg \
   -loglevel quiet \
   -ss "$starting_point" \
